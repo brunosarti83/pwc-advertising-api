@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Poetry
+poetry.lock 
+.pypoetry/
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+*.env
+
+# Alembic
+migrations/versions/*.pyc
+alembic.ini
+
+# Docker
+Dockerfile.local
+*.dockerignore
+docker-compose.yml
+
+# Testing
+.pytest_cache/
+coverage/
+.coverage
+*.cover
+*.xml
+*.log
+
+# Editor/IDE
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*~
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+*.bak
+*.tmp
+*.cache
