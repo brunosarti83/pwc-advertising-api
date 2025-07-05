@@ -1,8 +1,8 @@
-from sqlmodel import Session
-from supabase import create_client, Client
+from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+from supabase import create_client, Client
 from functools import lru_cache
-from typing import Generator
+from typing import AsyncGenerator
 import os
 from dotenv import load_dotenv
 
@@ -16,7 +16,7 @@ def get_supabase() -> Client:
 def get_db_engine() -> AsyncEngine:
     return create_async_engine(os.getenv("SUPABASE_DB_URL"))
 
-def get_db() -> Generator[Session, None, None]:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     engine = get_db_engine()
-    with Session(engine) as session:
+    async with AsyncSession(engine) as session:
         yield session

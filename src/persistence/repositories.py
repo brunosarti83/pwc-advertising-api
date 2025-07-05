@@ -1,37 +1,40 @@
-from sqlmodel import Session, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import Generic, TypeVar, Type, Optional, List
 from src.persistence.models import Location
 from src.utils.uuid import generate_prefixed_uuid
+from sqlmodel import select
 
 T = TypeVar("T")
 
 class BaseRepository(Generic[T]):
-    def __init__(self, model: Type[T], session: Session):
+    def __init__(self, model: Type[T], session: AsyncSession):
         self.model = model
         self.session = session
 
-    def create(self, obj: T) -> T:
+    async def create(self, obj: T) -> T:
         self.session.add(obj)
-        self.session.commit()
-        self.session.refresh(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
         return obj
 
-    def get(self, id: str) -> Optional[T]:
+    async def get(self, id: str) -> Optional[T]:
         statement = select(self.model).where(self.model.id == id, self.model.is_deleted == False)
-        return self.session.exec(statement).first()
+        result = await self.session.exec(statement)
+        return result.first()
 
-    def get_all(self, offset: int = 0, limit: int = 100) -> List[T]:
+    async def get_all(self, offset: int = 0, limit: int = 100) -> List[T]:
         statement = select(self.model).where(self.model.is_deleted == False).offset(offset).limit(limit)
-        return self.session.exec(statement).all()
+        result = await self.session.exec(statement)
+        return result.all()
 
-    def delete(self, id: str) -> None:
-        obj = self.get(id)
+    async def delete(self, id: str) -> None:
+        obj = await self.get(id)
         if obj:
             obj.is_deleted = True
             self.session.add(obj)
-            self.session.commit()
+            await self.session.commit()
 
 class LocationRepository(BaseRepository[Location]):
-    def create(self, obj: Location) -> Location:
+    async def create(self, obj: Location) -> Location:
         obj.id = generate_prefixed_uuid("loc")
-        return super().create(obj)
+        return await super().create(obj)

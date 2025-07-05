@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime, date
 from typing import Optional, Dict, Any
 
@@ -29,3 +29,14 @@ class LocationUpdate(BaseModel):
     country_code: Optional[str] = None
     lat: Optional[float] = None
     lng: Optional[float] = None
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class SupabaseSession(BaseModel):
+    access_token: str
+    refresh_token: Optional[str] = None
+    token_type: Optional[str] = None
+    expires_in: Optional[int] = None
+    user: Optional[Any] = None

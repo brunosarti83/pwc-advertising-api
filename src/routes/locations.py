@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from src.domain.models import Location, LocationCreate, LocationUpdate
 from src.services.locations import LocationService
-from sqlmodel import Session
+from sqlmodel.ext.asyncio.session import AsyncSession
 from src.dependencies import get_db, get_supabase
 from supabase import Client
 from typing import List
@@ -11,32 +11,32 @@ router = APIRouter(prefix="/locations", tags=["locations"])
 
 @router.post("/", response_model=Location, status_code=201)
 @limiter.limit("100/minute")
-async def create_location(request: Request, location: LocationCreate, db: Session = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def create_location(request: Request, location: LocationCreate, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    return LocationService(db).create_location(location)
+    return await LocationService(db).create_location(location)
 
 @router.get("/{id}", response_model=Location)
 @limiter.limit("100/minute")
-async def get_location(request: Request, id: str, db: Session = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def get_location(request: Request, id: str, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    return LocationService(db).get_location(id)
+    return await LocationService(db).get_location(id)
 
 @router.get("/", response_model=List[Location])
 @limiter.limit("100/minute")
-async def get_locations(request: Request, offset: int = 0, limit: int = 100, db: Session = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def get_locations(request: Request, offset: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    return LocationService(db).get_locations(offset, limit)
+    return await LocationService(db).get_locations(offset, limit)
 
 @router.delete("/{id}", status_code=204)
 @limiter.limit("100/minute")
-async def delete_location(request: Request, id: str, db: Session = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def delete_location(request: Request, id: str, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    LocationService(db).delete_location(id)
+    await LocationService(db).delete_location(id)
