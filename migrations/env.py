@@ -1,11 +1,35 @@
+from logging.config import fileConfig
+from sqlalchemy import engine_from_config, pool
 from alembic import context
 from sqlmodel import SQLModel
 from src.dependencies import get_db_engine
 from src.persistence.models import Location, Billboard, Campaign, CampaignBillboard
 
 config = context.config
+fileConfig(config.config_file_name)
 connectable = get_db_engine()
+
+# Get reed of possible old metadata
+SQLModel.metadata.clear()
+SQLModel.metadata.create_all(bind=connectable, tables=[
+    Location.__table__,
+    Billboard.__table__,
+    Campaign.__table__,
+    CampaignBillboard.__table__
+])
+
+# Configure Alembic to handle SQLModel types - imports sqlmodel if sqlmodel types are used
+def render_item(type_, obj, autogen_context):
+    """Customize rendering of SQLModel types in migration scripts."""
+    if type_ == "type" and hasattr(obj, "__module__") and obj.__module__.startswith("sqlmodel"):
+        autogen_context.imports.add("import sqlmodel")
+        return f"sqlmodel.sql.sqltypes.{obj.__class__.__name__}()"
+    return False
+
 with connectable.connect() as connection:
-    context.configure(connection=connection, target_metadata=SQLModel.metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=SQLModel.metadata
+    )
     with context.begin_transaction():
         context.run_migrations()
