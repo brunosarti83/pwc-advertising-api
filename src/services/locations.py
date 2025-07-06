@@ -1,5 +1,6 @@
 from src.persistence.models import Location as LocationDB
-from src.persistence.repositories import LocationRepository
+from src.persistence.models import Billboard as BillboardDB
+from src.persistence.repositories import LocationRepository, BillboardRepository
 from src.domain.models import Location, LocationCreate, LocationUpdate, HATEOASLinks
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException
@@ -8,6 +9,7 @@ from typing import List
 class LocationService:
     def __init__(self, session: AsyncSession):
         self.repository = LocationRepository(LocationDB, session)
+        self.billboards_repository = BillboardRepository(BillboardDB, session)
 
     async def create_location(self, location: LocationCreate) -> Location:
         db_location = LocationDB(**location.dict())
@@ -41,4 +43,7 @@ class LocationService:
         location = await self.repository.get(id)
         if not location:
             raise HTTPException(status_code=404, detail="Location not found")
+        billboards = await self.billboards_repository.get_all_by_location(id)
+        if len(billboards) > 0:
+            raise HTTPException(status_code=409, detail="Location has billboards, update billboards first")   
         await self.repository.delete(id)

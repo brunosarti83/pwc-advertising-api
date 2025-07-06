@@ -1,57 +1,57 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from src.domain.models import Location, LocationCreate, LocationUpdate
-from src.services.locations import LocationService
+from src.domain.models import Billboard, BillboardCreate, BillboardUpdate
+from src.services.billboards import BillboardService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.dependencies import get_db, get_supabase
 from supabase import Client
 from typing import Any, Dict
 from src.limiter import limiter
 
-router = APIRouter(prefix="/locations", tags=["locations"])
+router = APIRouter(prefix="/billboards", tags=["billboards"])
 
-def wrap_data(result: Any, **kwargs) -> Dict[str, Any]:
-    return {"data": result, **kwargs}
+def wrap_data(result: Any) -> Dict[str, Any]:
+    return {"data": result}
 
 @router.post("/", response_model=Dict[str, Any], status_code=201)
 @limiter.limit("100/minute")
-async def create_location(request: Request, location: LocationCreate, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def create_billboard(request: Request, billboard: BillboardCreate, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    result = await LocationService(db).create_location(location)
+    result = await BillboardService(db).create_billboard(billboard)
     return wrap_data(result)
 
 @router.get("/{id}", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
-async def get_location(request: Request, id: str, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def billboard(request: Request, id: str, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    result = await LocationService(db).get_location(id)
+    result = await BillboardService(db).get_billboard(id)
     return wrap_data(result)
 
 @router.get("/", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
-async def get_locations(request: Request, offset: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def get_billboards(request: Request, offset: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    result = await LocationService(db).get_locations(offset, limit)
+    result = await BillboardService(db).get_billboards(offset, limit)
     return wrap_data(result)
 
 @router.delete("/{id}", status_code=204)
 @limiter.limit("100/minute")
-async def delete_location(request: Request, id: str, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def delete_billboard(request: Request, id: str, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    return await LocationService(db).delete_location(id)
+    return await BillboardService(db).delete_billboard(id)
 
 @router.patch("/{id}", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
-async def update_location(request: Request, id: str, location_update: LocationUpdate, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
+async def update_billboard(request: Request, id: str, billboard_update: BillboardUpdate, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    result = await LocationService(db).update_location(id, location_update)
+    result = await BillboardService(db).update_billboard(id, billboard_update)
     return wrap_data(result)

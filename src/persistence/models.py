@@ -1,7 +1,11 @@
 from sqlmodel import SQLModel, Field, Column, Date, TIMESTAMP, text
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, TYPE_CHECKING
 from uuid import UUID
+from sqlmodel import Relationship
+
+if TYPE_CHECKING:
+    from .models import Billboard, Location
 
 class Location(SQLModel, table=True):
     __tablename__ = "locations"
@@ -14,6 +18,7 @@ class Location(SQLModel, table=True):
     lng: float
     created_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(TIMESTAMP(timezone=True)))
     is_deleted: bool = Field(default=False)
+    billboards: List["Billboard"] = Relationship(back_populates="location")
 
 class Billboard(SQLModel, table=True):
     __tablename__ = "billboards"
@@ -24,6 +29,7 @@ class Billboard(SQLModel, table=True):
     dollars_per_day: float
     created_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(TIMESTAMP(timezone=True)))
     is_deleted: bool = Field(default=False)
+    location: Optional["Location"] = Relationship(back_populates="billboards")
 
 class Campaign(SQLModel, table=True):
     __tablename__ = "campaigns"
