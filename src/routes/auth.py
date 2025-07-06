@@ -26,3 +26,9 @@ async def signin_user(request: Request, user: UserLogin, supabase: Client = Depe
             user=result.user
         )
     raise HTTPException(status_code=401, detail="Invalid credentials or email not verified.")
+
+@router.post("/signout")
+@limiter.limit("100/minute")
+async def signout_user(request: Request, supabase: Client = Depends(get_supabase)):
+    result = await AuthService(supabase=supabase).sign_out_user()
+    return { "message": "User signed out." }

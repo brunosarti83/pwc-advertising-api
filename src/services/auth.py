@@ -20,3 +20,9 @@ class AuthService:
         if getattr(response, "error", None):
             raise HTTPException(status_code=401, detail=response.error.message)
         return response
+    
+    async def sign_out_user(self):
+        response = self.supabase.auth.sign_out()
+        if getattr(response, "error", None):
+            raise HTTPException(status_code=400, detail=response.error.message)
+        return response

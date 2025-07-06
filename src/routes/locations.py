@@ -39,4 +39,12 @@ async def delete_location(request: Request, id: str, db: AsyncSession = Depends(
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    await LocationService(db).delete_location(id)
+    return await LocationService(db).delete_location(id)
+
+@router.patch("/{id}", response_model=Location)
+@limiter.limit("100/minute")
+async def update_location(request: Request, id: str, location_update: LocationUpdate, db: AsyncSession = Depends(get_db), supabase: Client = Depends(get_supabase)):
+    user = supabase.auth.get_user()
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return await LocationService(db).update_location(id, location_update)

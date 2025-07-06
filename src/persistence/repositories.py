@@ -1,6 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import Generic, TypeVar, Type, Optional, List
-from src.persistence.models import Location
+from src.persistence.models import Location, Billboard
 from src.utils.uuid import generate_prefixed_uuid
 from sqlmodel import select
 
@@ -27,6 +27,12 @@ class BaseRepository(Generic[T]):
         result = await self.session.exec(statement)
         return result.all()
 
+    async def update(self, obj: T) -> T:
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
+        return obj
+
     async def delete(self, id: str) -> None:
         obj = await self.get(id)
         if obj:
@@ -37,4 +43,9 @@ class BaseRepository(Generic[T]):
 class LocationRepository(BaseRepository[Location]):
     async def create(self, obj: Location) -> Location:
         obj.id = generate_prefixed_uuid("loc")
+        return await super().create(obj)
+    
+class BillboardsRepository(BaseRepository[Billboard]):
+    async def create(self, obj: Billboard) -> Billboard:
+        obj.id = generate_prefixed_uuid("bill")
         return await super().create(obj)
