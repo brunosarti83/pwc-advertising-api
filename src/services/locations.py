@@ -1,7 +1,7 @@
 from src.persistence.models import Location as LocationDB
 from src.persistence.models import Billboard as BillboardDB
 from src.persistence.repositories import LocationRepository, BillboardRepository
-from src.domain.models import Location, LocationCreate, LocationUpdate, HATEOASLinks
+from src.domain.models.locations import Location, LocationCreate, LocationUpdate, HATEOASLinks
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException
 from typing import List

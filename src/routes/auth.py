@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
-from src.domain.models import SupabaseSession, UserLogin
+from src.domain.models.auth import SupabaseSession, UserLogin
 from src.services.auth import AuthService
 from src.dependencies import get_supabase
 from supabase import Client

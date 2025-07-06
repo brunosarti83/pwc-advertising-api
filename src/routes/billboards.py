@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from src.domain.models import Billboard, BillboardCreate, BillboardUpdate
+from src.domain.models.billboards import Billboard, BillboardCreate, BillboardUpdate
 from src.services.billboards import BillboardService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.dependencies import get_db, get_supabase

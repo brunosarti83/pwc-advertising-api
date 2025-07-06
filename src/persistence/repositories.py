@@ -1,6 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import Generic, TypeVar, Type, Optional, List
-from src.persistence.models import Location, Billboard
+from src.persistence.models import Location, Billboard, Campaign
 from src.utils.uuid import generate_prefixed_uuid
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
@@ -79,4 +79,8 @@ class BillboardRepository(BaseRepository[Billboard]):
         )
         result = await self.session.exec(statement)
         return result.all()
-    
+
+class CampaignRepository(BaseRepository[Campaign]):
+    async def create(self, obj: Campaign) -> Campaign:
+        obj.id = generate_prefixed_uuid("camp")
+        return await super().create(obj)
