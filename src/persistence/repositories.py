@@ -126,5 +126,12 @@ class CampaignBillboardRepository:
         )
         statement = select(Billboard).options(selectinload(Billboard.location)).where(~Billboard.id.in_(subq))
         result = await self.session.exec(statement)
-        print('result', result)
         return result.all()
+    
+    async def check_billboard_availability(self, id, start_date: date, end_date: date) -> bool:
+        subq = select(CampaignBillboard.billboard_id).join(Campaign).where(
+            (Campaign.start_date <= end_date) & (Campaign.end_date >= start_date)
+        )
+        statement = select(Billboard).where(Billboard.id == id, ~Billboard.id.in_(subq))
+        result = await self.session.exec(statement)
+        return result.first() is not None

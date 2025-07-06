@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, Field, Column, Date, TIMESTAMP, text
-from datetime import datetime
+from sqlmodel import SQLModel, Field, Column, Date, TIMESTAMP
+from datetime import datetime, date
 from typing import Optional, List, TYPE_CHECKING
 from uuid import UUID
 from sqlmodel import Relationship
@@ -47,8 +47,8 @@ class Campaign(SQLModel, table=True):
     __tablename__ = "campaigns"
     id: str = Field(default=None, primary_key=True)  # cam_<uuid>
     name: str
-    start_date: datetime = Field(sa_column=Column(Date))
-    end_date: datetime = Field(sa_column=Column(Date))
+    start_date: date = Field(sa_column=Column(Date))
+    end_date: date = Field(sa_column=Column(Date))
     created_at: datetime = Field(default_factory=datetime.utcnow, sa_column=Column(TIMESTAMP(timezone=True)))
     is_deleted: bool = Field(default=False)
     billboard_links: List["CampaignBillboard"] = Relationship(back_populates="campaign")

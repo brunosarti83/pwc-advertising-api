@@ -7,13 +7,13 @@ from src.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post("/signup", status_code=201)
+@router.post("/sign-up", status_code=201)
 @limiter.limit("100/minute")
 async def signup_user(request: Request, user: UserLogin, supabase: Client = Depends(get_supabase)):
     result = await AuthService(supabase=supabase).sign_up_user(user)
     return result
 
-@router.post("/signin", response_model=SupabaseSession)
+@router.post("/sign-in", response_model=SupabaseSession)
 @limiter.limit("100/minute")
 async def signin_user(request: Request, user: UserLogin, supabase: Client = Depends(get_supabase)):
     result = await AuthService(supabase=supabase).sign_in_user(user)
@@ -27,7 +27,7 @@ async def signin_user(request: Request, user: UserLogin, supabase: Client = Depe
         )
     raise HTTPException(status_code=401, detail="Invalid credentials or email not verified.")
 
-@router.post("/signout")
+@router.post("/sign-out")
 @limiter.limit("100/minute")
 async def signout_user(request: Request, supabase: Client = Depends(get_supabase)):
     result = await AuthService(supabase=supabase).sign_out_user()
