@@ -1,7 +1,8 @@
 from src.persistence.models import Campaign as CampaignDB
-from src.persistence.models import Billboard as BillboardDB
 from src.persistence.repositories import CampaignRepository
+from src.persistence.repositories import CampaignBillboardRepository
 from src.domain.models.campaigns import Campaign, CampaignCreate, CampaignUpdate, HATEOASLinks
+from src.domain.models.billboards import Billboard, BillboardLocationInfo
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException
 from typing import List
@@ -9,6 +10,7 @@ from typing import List
 class CampaignService:
     def __init__(self, session: AsyncSession):
         self.repository = CampaignRepository(CampaignDB, session)
+        self.campaign_billboard_repository = CampaignBillboardRepository(session)
 
     async def create_campaign(self, campaign: CampaignCreate) -> Campaign:
         db_campaign = CampaignDB(**campaign.dict())
@@ -20,12 +22,60 @@ class CampaignService:
         campaign = await self.repository.get(id)
         if not campaign:
             raise HTTPException(status_code=404, detail="Campaign not found")
+        billboards = await self.campaign_billboard_repository.get_billboards_for_campaign(id)
+        billboard_objs = [
+            Billboard(
+                **b.dict(),
+                location=BillboardLocationInfo(
+                    address=b.location.address,
+                    city=b.location.city,
+                    state=b.location.state,
+                    country_code=b.location.country_code,
+                    lat=b.location.lat,
+                    lng=b.location.lng
+                ) if b.location else None,
+                links=HATEOASLinks(self=f"/api/v1/billboards/{b.id}").dict()
+            ) for b in billboards
+        ]
+        days = (campaign.end_date - campaign.start_date).days + 1
+        total_dollar_amount = sum(b.dollars_per_day * days for b in billboards)
         links = HATEOASLinks(self=f"/api/v1/campaigns/{id}")
-        return Campaign(**campaign.dict(), links=links)
+        return Campaign(
+            **campaign.dict(),
+            links=links,
+            total_dollar_amount=total_dollar_amount,
+            billboards=billboard_objs
+        )
 
     async def get_campaigns(self, offset: int = 0, limit: int = 100) -> List[Campaign]:
         campaigns = await self.repository.get_all(offset, limit)
-        return [Campaign(**camp.dict(), links=HATEOASLinks(self=f"/api/v1/campaigns/{camp.id}")) for camp in campaigns]
+        result = []
+        for camp in campaigns:
+            billboards = await self.campaign_billboard_repository.get_billboards_for_campaign(camp.id)
+            billboard_objs = [
+                Billboard(
+                    **b.dict(),
+                    links=HATEOASLinks(self=f"/api/v1/billboards/{b.id}").dict(),
+                    location=BillboardLocationInfo(
+                        address=b.location.address,
+                        city=b.location.city,
+                        state=b.location.state,
+                        country_code=b.location.country_code,
+                        lat=b.location.lat,
+                        lng=b.location.lng
+                    ) if b.location else None
+                ) for b in billboards
+            ]
+            days = (camp.end_date - camp.start_date).days + 1
+            total_dollar_amount = sum(b.dollars_per_day * days for b in billboards)
+            links = HATEOASLinks(self=f"/api/v1/campaigns/{camp.id}")
+            result.append(Campaign(
+                **camp.dict(),
+                links=links,
+                total_dollar_amount=total_dollar_amount,
+                billboards=billboard_objs
+            ))
+        return result
 
     async def update_campaign(self, id: str, campaign_update: CampaignUpdate) -> Campaign:
         campaign = await self.repository.get(id)
