@@ -1,8 +1,11 @@
+from datetime import date, datetime
+from typing import List, Optional
+
 from pydantic import BaseModel
-from datetime import datetime, date
-from typing import Optional, List
+
 from src.domain.models.billboards import Billboard
 from src.domain.models.common import HATEOASLinks
+
 
 class CampaignBase(BaseModel):
     name: str

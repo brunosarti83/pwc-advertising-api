@@ -1,9 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
-from src.main import app
-from src.persistence.models import Location
 from sqlmodel import Session, SQLModel, create_engine
-from src.dependencies import get_db, get_db_engine
+
+from src.main import app
+
 
 @pytest.fixture
 def client():
@@ -20,7 +20,7 @@ def test_create_location(client, db_session, monkeypatch):
     def mock_get_db():
         yield db_session
     monkeypatch.setattr("src.dependencies.get_db", mock_get_db)
-    
+
     response = client.post("/api/v1/locations", json={
         "address": "123 Main St",
         "city": "NYC",

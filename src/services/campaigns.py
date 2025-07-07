@@ -1,13 +1,15 @@
-from src.persistence.models import Campaign as CampaignDB
-from src.persistence.repositories import CampaignRepository
-from src.persistence.repositories import CampaignBillboardRepository
-from src.domain.models.campaigns import Campaign, CampaignCreate, CampaignUpdate
-from src.domain.models.common import HATEOASLinks, HATEOASLinkObject
-from src.domain.models.billboards import Billboard, BillboardLocationInfo
-from sqlmodel.ext.asyncio.session import AsyncSession
-from fastapi import HTTPException
-from typing import List
 import logging
+from typing import List
+
+from fastapi import HTTPException
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.domain.models.billboards import Billboard, BillboardLocationInfo
+from src.domain.models.campaigns import Campaign, CampaignCreate, CampaignUpdate
+from src.domain.models.common import HATEOASLinkObject, HATEOASLinks
+from src.persistence.models import Campaign as CampaignDB
+from src.persistence.repositories import CampaignBillboardRepository, CampaignRepository
+
 
 class CampaignService:
     def __init__(self, session: AsyncSession):
@@ -154,7 +156,7 @@ class CampaignService:
         try:
             campaign = await self.repository.get(id)
             if not campaign:
-                raise HTTPException(status_code=404, detail="Campaign not found")  
+                raise HTTPException(status_code=404, detail="Campaign not found")
             await self.repository.delete(id)
         except HTTPException:
             raise

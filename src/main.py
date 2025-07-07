@@ -1,13 +1,13 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
-from src.routes.locations import router as locations_router
+
+from src.error_handlers import generic_exception_handler
+from src.limiter import limiter
+from src.routes.auth import router as auth_router
+from src.routes.availability import router as availability_router
 from src.routes.billboards import router as billboards_router
 from src.routes.campaigns import router as campaigns_router
-from src.routes.availability import router as availability_router
-from src.routes.auth import router as auth_router
-from src.limiter import limiter
-from src.error_handlers import generic_exception_handler
+from src.routes.locations import router as locations_router
 
 app = FastAPI(title="Advertising API", version="1.0.0")
 

@@ -1,7 +1,10 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional, Dict
+from typing import Optional
+
+from pydantic import BaseModel
+
 from src.domain.models.common import HATEOASLinks
+
 
 class LocationBase(BaseModel):
     address: str

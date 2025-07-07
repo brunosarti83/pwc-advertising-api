@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from src.domain.models.locations import Location, LocationCreate, LocationUpdate
-from src.services.locations import LocationService
-from sqlmodel.ext.asyncio.session import AsyncSession
-from src.dependencies import get_db, get_supabase
-from supabase import Client
 from typing import Any, Dict
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlmodel.ext.asyncio.session import AsyncSession
+from supabase import Client
+
+from src.dependencies import get_db, get_supabase
+from src.domain.models.locations import LocationCreate, LocationUpdate
 from src.limiter import limiter
+from src.services.locations import LocationService
 
 router = APIRouter(prefix="/locations", tags=["locations"])
 

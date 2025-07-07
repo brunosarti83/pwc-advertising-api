@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from src.domain.models.billboards import Billboard, BillboardCreate, BillboardUpdate
-from src.services.billboards import BillboardService
-from sqlmodel.ext.asyncio.session import AsyncSession
-from src.dependencies import get_db, get_supabase
-from supabase import Client
 from typing import Any, Dict
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlmodel.ext.asyncio.session import AsyncSession
+from supabase import Client
+
+from src.dependencies import get_db, get_supabase
+from src.domain.models.billboards import BillboardCreate, BillboardUpdate
 from src.limiter import limiter
+from src.services.billboards import BillboardService
 
 router = APIRouter(prefix="/billboards", tags=["billboards"])
 

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
-from src.domain.models.auth import SupabaseSession, UserLogin
-from src.services.auth import AuthService
-from src.dependencies import get_supabase
+from fastapi import APIRouter, Depends, HTTPException, Request
 from supabase import Client
+
+from src.dependencies import get_supabase
+from src.domain.models.auth import SupabaseSession, UserLogin
 from src.limiter import limiter
+from src.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

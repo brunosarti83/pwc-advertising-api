@@ -1,9 +1,10 @@
 from fastapi import HTTPException
-from supabase import Client
 from gotrue.errors import AuthApiError
+from supabase import Client
 
 from src.dependencies import get_supabase
-from src.domain.models.auth import UserLogin, SupabaseSession
+from src.domain.models.auth import SupabaseSession, UserLogin
+
 
 class AuthService:
     def __init__(self, supabase: Client = None):
@@ -26,7 +27,7 @@ class AuthService:
             return response
         except AuthApiError as e:
             raise HTTPException(status_code=401, detail=str(e))
-    
+
     async def sign_out_user(self):
         try:
             response = self.supabase.auth.sign_out()

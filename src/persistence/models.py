@@ -1,11 +1,10 @@
-from sqlmodel import SQLModel, Field, Column, Date, TIMESTAMP
-from datetime import datetime, date
-from typing import Optional, List, TYPE_CHECKING
-from uuid import UUID
-from sqlmodel import Relationship
+from datetime import date, datetime
+from typing import TYPE_CHECKING, List, Optional
+
+from sqlmodel import TIMESTAMP, Column, Date, Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .models import Billboard, Location, Campaign, CampaignBillboard
+    from .models import Billboard, Campaign, CampaignBillboard, Location
 
 class CampaignBillboard(SQLModel, table=True):
     __tablename__ = "campaign_billboards"

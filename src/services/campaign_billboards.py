@@ -1,12 +1,20 @@
-from src.persistence.models import Billboard as BillboardDB, Campaign as CampaignDB
-from src.persistence.repositories import CampaignBillboardRepository, CampaignRepository, BillboardRepository
-from src.domain.models.billboards import Billboard, HATEOASLinks, BillboardLocationInfo
-from src.domain.models.common import HATEOASLinkObject
-from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import List
-from datetime import date
-from fastapi import HTTPException
 import logging
+from datetime import date
+from typing import List
+
+from fastapi import HTTPException
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.domain.models.billboards import Billboard, BillboardLocationInfo, HATEOASLinks
+from src.domain.models.common import HATEOASLinkObject
+from src.persistence.models import Billboard as BillboardDB
+from src.persistence.models import Campaign as CampaignDB
+from src.persistence.repositories import (
+    BillboardRepository,
+    CampaignBillboardRepository,
+    CampaignRepository,
+)
+
 
 class CampaignBillboardService:
     def __init__(self, session: AsyncSession):

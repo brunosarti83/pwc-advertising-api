@@ -1,12 +1,15 @@
-from src.persistence.models import Location as LocationDB
-from src.persistence.models import Billboard as BillboardDB
-from src.persistence.repositories import LocationRepository, BillboardRepository
-from src.domain.models.locations import Location, LocationCreate, LocationUpdate
-from src.domain.models.common import HATEOASLinks, HATEOASLinkObject
-from sqlmodel.ext.asyncio.session import AsyncSession
-from fastapi import HTTPException
-from typing import List
 import logging
+from typing import List
+
+from fastapi import HTTPException
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.domain.models.common import HATEOASLinkObject, HATEOASLinks
+from src.domain.models.locations import Location, LocationCreate, LocationUpdate
+from src.persistence.models import Billboard as BillboardDB
+from src.persistence.models import Location as LocationDB
+from src.persistence.repositories import BillboardRepository, LocationRepository
+
 
 class LocationService:
     def __init__(self, session: AsyncSession):
@@ -40,12 +43,12 @@ class LocationService:
             links = HATEOASLinks(
                 self=HATEOASLinkObject(name="self", method="GET", href=f"/api/v1/locations/{location.id}"),
                 actions=[
-                    HATEOASLinkObject(name="update", method="PATCH", href=f"/api/v1/locations/{location.id}"), 
+                    HATEOASLinkObject(name="update", method="PATCH", href=f"/api/v1/locations/{location.id}"),
                 ] + ([HATEOASLinkObject(name="delete", method="DELETE", href=f"/api/v1/locations/{location.id}")] if len(billboards_at_location) == 0 else []),
                 related=[
                     HATEOASLinkObject(name="billboard", method="GET", href=f"/api/v1/billboards/{bill.id}") for bill in billboards_at_location
                 ]
-            ) 
+            )
             return Location(**location.dict(), links=links)
         except HTTPException:
             raise
@@ -57,7 +60,7 @@ class LocationService:
         try:
             locations = await self.repository.get_all(offset, limit)
             return [Location(
-                **loc.dict(), 
+                **loc.dict(),
                 links = HATEOASLinks(self=HATEOASLinkObject(name="self", method="GET", href=f"/api/v1/locations/{loc.id}"))
             ) for loc in locations]
         except Exception as exc:
@@ -88,7 +91,7 @@ class LocationService:
                 raise HTTPException(status_code=404, detail="Location not found")
             billboards = await self.billboards_repository.get_all_by_location(id)
             if len(billboards) > 0:
-                raise HTTPException(status_code=409, detail="Location has billboards, update billboards first")   
+                raise HTTPException(status_code=409, detail="Location has billboards, update billboards first")
             await self.repository.delete(id)
         except HTTPException:
             raise

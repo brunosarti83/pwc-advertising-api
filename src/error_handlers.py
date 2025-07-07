@@ -1,6 +1,8 @@
+import logging
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
-import logging
+
 
 async def generic_exception_handler(request: Request, exc: Exception):
     logging.exception(f"Unhandled error: {exc}")

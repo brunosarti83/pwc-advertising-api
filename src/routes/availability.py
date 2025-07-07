@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from src.domain.models.billboards import Billboard, BillboardCreate, BillboardUpdate
-from src.services.campaigns import CampaignService
-from src.services.campaign_billboards import CampaignBillboardService
-from sqlmodel.ext.asyncio.session import AsyncSession
-from src.dependencies import get_db, get_supabase
-from supabase import Client
-from typing import Any, Dict
-from src.limiter import limiter
 from datetime import date
+from typing import Any, Dict
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlmodel.ext.asyncio.session import AsyncSession
+from supabase import Client
+
+from src.dependencies import get_db, get_supabase
+from src.limiter import limiter
+from src.services.campaign_billboards import CampaignBillboardService
 
 router = APIRouter(prefix="/availability", tags=["availability"])
 

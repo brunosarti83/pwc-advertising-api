@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from src.domain.models.campaigns import Campaign, CampaignCreate, CampaignUpdate
-from src.services.campaigns import CampaignService
-from src.services.campaign_billboards import CampaignBillboardService
-from sqlmodel.ext.asyncio.session import AsyncSession
-from src.dependencies import get_db, get_supabase
-from supabase import Client
 from typing import Any, Dict
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlmodel.ext.asyncio.session import AsyncSession
+from supabase import Client
+
+from src.dependencies import get_db, get_supabase
+from src.domain.models.campaigns import CampaignCreate, CampaignUpdate
 from src.limiter import limiter
+from src.services.campaign_billboards import CampaignBillboardService
+from src.services.campaigns import CampaignService
 
 router = APIRouter(prefix="/campaigns", tags=["campaigns"])
 
@@ -16,9 +18,9 @@ def wrap_data(result: Any, **kwargs) -> Dict[str, Any]:
 @router.post("/", response_model=Dict[str, Any], status_code=201)
 @limiter.limit("100/minute")
 async def create_campaign(
-    request: Request, 
-    campaign: CampaignCreate, 
-    db: AsyncSession = Depends(get_db), 
+    request: Request,
+    campaign: CampaignCreate,
+    db: AsyncSession = Depends(get_db),
     supabase: Client = Depends(get_supabase)
 ):
     user = supabase.auth.get_user()
@@ -30,9 +32,9 @@ async def create_campaign(
 @router.get("/{id}", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
 async def get_campaign(
-    request: Request, 
-    id: str, 
-    db: AsyncSession = Depends(get_db), 
+    request: Request,
+    id: str,
+    db: AsyncSession = Depends(get_db),
     supabase: Client = Depends(get_supabase)
 ):
     user = supabase.auth.get_user()
@@ -44,10 +46,10 @@ async def get_campaign(
 @router.get("/", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
 async def get_campaigns(
-    request: Request, 
-    offset: int = 0, 
-    limit: int = 100, 
-    db: AsyncSession = Depends(get_db), 
+    request: Request,
+    offset: int = 0,
+    limit: int = 100,
+    db: AsyncSession = Depends(get_db),
     supabase: Client = Depends(get_supabase)
 ):
     user = supabase.auth.get_user()
@@ -59,9 +61,9 @@ async def get_campaigns(
 @router.delete("/{id}", status_code=204)
 @limiter.limit("100/minute")
 async def delete_campaign(
-    request: Request, 
-    id: str, 
-    db: AsyncSession = Depends(get_db), 
+    request: Request,
+    id: str,
+    db: AsyncSession = Depends(get_db),
     supabase: Client = Depends(get_supabase)
 ):
     user = supabase.auth.get_user()
@@ -72,10 +74,10 @@ async def delete_campaign(
 @router.patch("/{id}", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
 async def update_campaign(
-    request: Request, 
-    id: str, 
-    campaign_update: CampaignUpdate, 
-    db: AsyncSession = Depends(get_db), 
+    request: Request,
+    id: str,
+    campaign_update: CampaignUpdate,
+    db: AsyncSession = Depends(get_db),
     supabase: Client = Depends(get_supabase)
 ):
     user = supabase.auth.get_user()
@@ -87,10 +89,10 @@ async def update_campaign(
 @router.post("/{id}/add/{billboard_id}", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
 async def add_billboard_to_campaign(
-    request: Request, 
-    id: str, 
-    billboard_id: str, 
-    db: AsyncSession = Depends(get_db), 
+    request: Request,
+    id: str,
+    billboard_id: str,
+    db: AsyncSession = Depends(get_db),
     supabase: Client = Depends(get_supabase)
 ):
     user = supabase.auth.get_user()
@@ -102,10 +104,10 @@ async def add_billboard_to_campaign(
 @router.post("/{id}/remove/{billboard_id}", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
 async def remove_billboard_from_campaign(
-    request: Request, 
-    id: str, 
-    billboard_id: str, 
-    db: AsyncSession = Depends(get_db), 
+    request: Request,
+    id: str,
+    billboard_id: str,
+    db: AsyncSession = Depends(get_db),
     supabase: Client = Depends(get_supabase)
 ):
     user = supabase.auth.get_user()

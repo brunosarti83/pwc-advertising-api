@@ -1,10 +1,12 @@
-from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import Generic, TypeVar, Type, Optional, List
-from src.persistence.models import Location, Billboard, Campaign, CampaignBillboard
-from src.utils.uuid import generate_prefixed_uuid
-from sqlmodel import select
-from sqlalchemy.orm import selectinload
 from datetime import date
+from typing import Generic, List, Optional, Type, TypeVar
+
+from sqlalchemy.orm import selectinload
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.persistence.models import Billboard, Campaign, CampaignBillboard, Location
+from src.utils.uuid import generate_prefixed_uuid
 
 T = TypeVar("T")
 
@@ -46,13 +48,13 @@ class LocationRepository(BaseRepository[Location]):
     async def create(self, obj: Location) -> Location:
         obj.id = generate_prefixed_uuid("loc")
         return await super().create(obj)
-    
+
 class BillboardRepository(BaseRepository[Billboard]):
     async def create(self, obj: Billboard) -> Billboard:
         obj.id = generate_prefixed_uuid("bill")
         return await super().create(obj)
 
-    
+
     async def get_with_location(self, id: str) -> Billboard:
         statement = (
             select(self.model)
@@ -61,7 +63,7 @@ class BillboardRepository(BaseRepository[Billboard]):
         )
         result = await self.session.exec(statement)
         return result.first()
-    
+
     async def get_all_with_location(self, offset: int = 0, limit: int = 100) -> List[Billboard]:
         statement = (
             select(self.model)
@@ -72,7 +74,7 @@ class BillboardRepository(BaseRepository[Billboard]):
         )
         result = await self.session.exec(statement)
         return result.all()
-    
+
     async def get_all_by_location(self, id) -> List[Billboard]:
         statement = (
             select(self.model)
@@ -85,7 +87,7 @@ class CampaignRepository(BaseRepository[Campaign]):
     async def create(self, obj: Campaign) -> Campaign:
         obj.id = generate_prefixed_uuid("camp")
         return await super().create(obj)
-    
+
 class CampaignBillboardRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -128,7 +130,7 @@ class CampaignBillboardRepository:
         statement = select(Billboard).options(selectinload(Billboard.location)).where(~Billboard.id.in_(subq))
         result = await self.session.exec(statement)
         return result.all()
-    
+
     async def check_billboard_availability(self, id, start_date: date, end_date: date) -> bool:
         subq = select(CampaignBillboard.billboard_id).join(Campaign).where(
             (Campaign.start_date <= end_date) &

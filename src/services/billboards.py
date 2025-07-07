@@ -1,11 +1,20 @@
-from src.persistence.models import Billboard as BillboardDB, Location as LocationDB
-from src.persistence.repositories import BillboardRepository, LocationRepository
-from src.domain.models.billboards import Billboard, BillboardCreate, BillboardUpdate, BillboardLocationInfo
-from src.domain.models.common import HATEOASLinks, HATEOASLinkObject
-from sqlmodel.ext.asyncio.session import AsyncSession
-from fastapi import HTTPException
-from typing import List
 import logging
+from typing import List
+
+from fastapi import HTTPException
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.domain.models.billboards import (
+    Billboard,
+    BillboardCreate,
+    BillboardLocationInfo,
+    BillboardUpdate,
+)
+from src.domain.models.common import HATEOASLinkObject, HATEOASLinks
+from src.persistence.models import Billboard as BillboardDB
+from src.persistence.models import Location as LocationDB
+from src.persistence.repositories import BillboardRepository, LocationRepository
+
 
 class BillboardService:
     def __init__(self, session: AsyncSession):
@@ -48,7 +57,7 @@ class BillboardService:
             if not bill:
                 raise HTTPException(status_code=404, detail="Billboard not found")
             return Billboard(
-                **bill.dict(), 
+                **bill.dict(),
                 location=BillboardLocationInfo(
                     address=bill.location.address,
                     city=bill.location.city,
@@ -66,7 +75,7 @@ class BillboardService:
                     related=[
                         HATEOASLinkObject(name="location", method="GET", href=f"/api/v1/locations/{bill.location_id}")
                     ]
-                ) 
+                )
             )
         except HTTPException:
             raise
@@ -78,7 +87,7 @@ class BillboardService:
         try:
             billboards = await self.repository.get_all_with_location(offset, limit)
             return [Billboard(
-                **bill.dict(), 
+                **bill.dict(),
                 location=BillboardLocationInfo(
                     address=bill.location.address,
                     city=bill.location.city,

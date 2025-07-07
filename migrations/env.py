@@ -1,9 +1,10 @@
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 from sqlmodel import SQLModel
+
 from src.dependencies import get_db_engine
-from src.persistence.models import Location, Billboard, Campaign, CampaignBillboard
+from src.persistence.models import Billboard, Campaign, CampaignBillboard, Location
 
 config = context.config
 fileConfig(config.config_file_name)
