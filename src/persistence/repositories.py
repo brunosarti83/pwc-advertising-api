@@ -120,9 +120,10 @@ class CampaignBillboardRepository:
         return result.all()
 
     async def get_available_billboards(self, start_date: date, end_date: date) -> List[Billboard]:
-        # Billboards not linked to any campaign with overlapping dates
         subq = select(CampaignBillboard.billboard_id).join(Campaign).where(
-            (Campaign.start_date <= end_date) & (Campaign.end_date >= start_date)
+            (Campaign.start_date <= end_date) &
+            (Campaign.end_date >= start_date) &
+            (Campaign.is_deleted == False)
         )
         statement = select(Billboard).options(selectinload(Billboard.location)).where(~Billboard.id.in_(subq))
         result = await self.session.exec(statement)
@@ -130,7 +131,9 @@ class CampaignBillboardRepository:
     
     async def check_billboard_availability(self, id, start_date: date, end_date: date) -> bool:
         subq = select(CampaignBillboard.billboard_id).join(Campaign).where(
-            (Campaign.start_date <= end_date) & (Campaign.end_date >= start_date)
+            (Campaign.start_date <= end_date) &
+            (Campaign.end_date >= start_date) &
+            (Campaign.is_deleted == False)
         )
         statement = select(Billboard).where(Billboard.id == id, ~Billboard.id.in_(subq))
         result = await self.session.exec(statement)
