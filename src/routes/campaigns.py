@@ -97,7 +97,7 @@ async def add_billboard_to_campaign(
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     result = await CampaignBillboardService(db).add_billboard_to_campaign(id, billboard_id)
-    return { "message": "Billboard added to campaign", **wrap_data(result) } # undo, add_more
+    return { "message": "Billboard added to campaign", **wrap_data(result) }
 
 @router.post("/{id}/remove/{billboard_id}", response_model=Dict[str, Any])
 @limiter.limit("100/minute")
@@ -112,4 +112,4 @@ async def remove_billboard_from_campaign(
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     result = await CampaignBillboardService(db).remove_billboard_from_campaign(id, billboard_id)
-    return { "message": "Billboard removed from campaign", **wrap_data(result) } # undo back_to_campaign add_another
+    return { "message": "Billboard removed from campaign", **wrap_data(result) }

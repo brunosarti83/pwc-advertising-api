@@ -1,6 +1,7 @@
 from src.persistence.models import Billboard as BillboardDB, Location as LocationDB
 from src.persistence.repositories import BillboardRepository, LocationRepository
-from src.domain.models.billboards import Billboard, BillboardCreate, BillboardUpdate, HATEOASLinks, BillboardLocationInfo
+from src.domain.models.billboards import Billboard, BillboardCreate, BillboardUpdate, BillboardLocationInfo
+from src.domain.models.common import HATEOASLinks, HATEOASLinkObject
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException
 from typing import List
@@ -22,32 +23,67 @@ class BillboardService:
             lat=location.lat,
             lng=location.lng
         ) if location else None
-        links = HATEOASLinks(self=f"/api/v1/billboards/{created.id}")
+        links = HATEOASLinks(
+            self=HATEOASLinkObject(name="self", method="GET", href=f"/api/v1/billboards/{created.id}"),
+            actions=[
+                HATEOASLinkObject(name="update", method="PATCH", href=f"/api/v1/billboards/{created.id}"),
+                HATEOASLinkObject(name="delete", method="DELETE", href=f"/api/v1/billboards/{created.id}")
+            ],
+            related=[
+                HATEOASLinkObject(name="location", method="GET", href=f"/api/v1/locations/{created.location_id}")
+            ]
+        )
         return Billboard(**created.dict(), links=links, location=location_info)
 
     async def get_billboard(self, id: str) -> Billboard:
         bill = await self.repository.get_with_location(id)
         if not bill:
             raise HTTPException(status_code=404, detail="Billboard not found")
-        return Billboard(**bill.dict(), links=HATEOASLinks(self=f"/api/v1/billboards/{bill.id}"), location=BillboardLocationInfo(
-            address=bill.location.address,
-            city=bill.location.city,
-            state=bill.location.state,
-            country_code=bill.location.country_code,
-            lat=bill.location.lat,
-            lng=bill.location.lng
-        ) if bill.location else None)
+        return Billboard(
+            **bill.dict(), 
+            location=BillboardLocationInfo(
+                address=bill.location.address,
+                city=bill.location.city,
+                state=bill.location.state,
+                country_code=bill.location.country_code,
+                lat=bill.location.lat,
+                lng=bill.location.lng
+            ) if bill.location else None,
+            links = HATEOASLinks(
+                self=HATEOASLinkObject(name="self", method="GET", href=f"/api/v1/billboards/{bill.id}"),
+                actions=[
+                    HATEOASLinkObject(name="update", method="PATCH", href=f"/api/v1/billboards/{bill.id}"),
+                    HATEOASLinkObject(name="delete", method="DELETE", href=f"/api/v1/billboards/{bill.id}")
+                ],
+                related=[
+                    HATEOASLinkObject(name="location", method="GET", href=f"/api/v1/locations/{bill.location_id}")
+                ]
+            ) 
+        )
 
     async def get_billboards(self, offset: int = 0, limit: int = 100) -> List[Billboard]:
         billboards = await self.repository.get_all_with_location(offset, limit)
-        return [Billboard(**bill.dict(), links=HATEOASLinks(self=f"/api/v1/billboards/{bill.id}"), location=BillboardLocationInfo(
-            address=bill.location.address,
-            city=bill.location.city,
-            state=bill.location.state,
-            country_code=bill.location.country_code,
-            lat=bill.location.lat,
-            lng=bill.location.lng
-        ) if bill.location else None) for bill in billboards]
+        return [Billboard(
+            **bill.dict(), 
+            location=BillboardLocationInfo(
+                address=bill.location.address,
+                city=bill.location.city,
+                state=bill.location.state,
+                country_code=bill.location.country_code,
+                lat=bill.location.lat,
+                lng=bill.location.lng
+            ) if bill.location else None,
+            links = HATEOASLinks(
+                self=HATEOASLinkObject(name="self", method="GET", href=f"/api/v1/billboards/{bill.id}"),
+                actions=[
+                    HATEOASLinkObject(name="update", method="PATCH", href=f"/api/v1/billboards/{bill.id}"),
+                    HATEOASLinkObject(name="delete", method="DELETE", href=f"/api/v1/billboards/{bill.id}")
+                ],
+                related=[
+                    HATEOASLinkObject(name="location", method="GET", href=f"/api/v1/locations/{bill.location_id}")
+                ]
+            )  
+        ) for bill in billboards]
 
     async def update_billboard(self, id: str, billboard_update: BillboardUpdate) -> Billboard:
         billboard = await self.repository.get(id)
@@ -66,7 +102,7 @@ class BillboardService:
             lat=location.lat,
             lng=location.lng
         ) if location else None
-        links = HATEOASLinks(self=f"/api/v1/billboards/{id}")
+        links = HATEOASLinks(self=HATEOASLinkObject(name="self", method="GET", href=f"/api/v1/billboards/{billboard.id}")) 
         return Billboard(**billboard.dict(), links=links, location=location_info)
 
     async def delete_billboard(self, id: str) -> None:

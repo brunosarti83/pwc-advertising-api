@@ -1,10 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, Dict
-
-class HATEOASLinks(BaseModel):
-    self: str
-    related: Optional[Dict[str, str]] = None
+from src.domain.models.common import HATEOASLinks
 
 class BillboardBase(BaseModel):
     location_id: str
@@ -26,8 +23,8 @@ class BillboardCreate(BillboardBase):
 class Billboard(BillboardBase):
     id: str
     created_at: datetime
-    links: HATEOASLinks
     location: BillboardLocationInfo
+    links: HATEOASLinks
 
 class BillboardUpdate(BaseModel):
     location_id: Optional[str] = None

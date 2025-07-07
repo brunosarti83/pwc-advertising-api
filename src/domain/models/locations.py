@@ -1,10 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, Dict
-
-class HATEOASLinks(BaseModel):
-    self: str
-    related: Optional[Dict[str, str]] = None
+from src.domain.models.common import HATEOASLinks
 
 class LocationBase(BaseModel):
     address: str

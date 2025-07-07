@@ -27,17 +27,9 @@ async def get_available_billboards(
     user = supabase.auth.get_user()
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    if campaign_id and (start_date or end_date):
-        raise HTTPException(status_code=400, detail="Either provide a campaign_id or a start_date and end_date, but not both.")
-    if campaign_id:
-        campaign = await CampaignService(db).get_campaign(campaign_id)
-        if not campaign:
-            raise HTTPException(status_code=404, detail="Campaign not found")
-        start_date = campaign.start_date
-        end_date = campaign.end_date
     if isinstance(start_date, str):
         start_date = date.fromisoformat(start_date)
     if isinstance(end_date, str):
         end_date = date.fromisoformat(end_date)
-    result = await CampaignBillboardService(db).get_availability(start_date, end_date)
+    result = await CampaignBillboardService(db).get_availability(campaign_id, start_date, end_date)
     return wrap_data(result)
