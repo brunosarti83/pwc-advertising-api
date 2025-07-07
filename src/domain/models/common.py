@@ -7,6 +7,6 @@ class HATEOASLinkObject(BaseModel):
     href: str
 
 class HATEOASLinks(BaseModel):
-    self: HATEOASLinkObject
+    self: Optional[HATEOASLinkObject] = None
     actions: Optional[List[HATEOASLinkObject]] = None
     related: Optional[List[HATEOASLinkObject]] = None

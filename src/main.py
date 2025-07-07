@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from src.routes.locations import router as locations_router
 from src.routes.billboards import router as billboards_router
@@ -6,12 +7,16 @@ from src.routes.campaigns import router as campaigns_router
 from src.routes.availability import router as availability_router
 from src.routes.auth import router as auth_router
 from src.limiter import limiter
+from src.error_handlers import generic_exception_handler
 
 app = FastAPI(title="Advertising API", version="1.0.0")
 
 # Limiter setup
 app.state.limiter = limiter
+
+# Exception handlers
 app.add_exception_handler(429, _rate_limit_exceeded_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 # Routes
 app.include_router(auth_router, prefix="/api/v1")
