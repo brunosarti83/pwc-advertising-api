@@ -15,7 +15,10 @@ def get_supabase() -> Client:
 
 @lru_cache
 def get_db_engine() -> AsyncEngine:
-    return create_async_engine(os.getenv("SUPABASE_DB_URL"))
+    return create_async_engine(
+        os.getenv("SUPABASE_DB_URL"),
+        connect_args={"statement_cache_size": 0}
+    )
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     engine = get_db_engine()

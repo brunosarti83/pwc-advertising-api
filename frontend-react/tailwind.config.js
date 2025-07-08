@@ -9,6 +9,8 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [heroui()],
+  plugins: [heroui({
+    defaultTheme: "dark"
+  })],
 }
 
