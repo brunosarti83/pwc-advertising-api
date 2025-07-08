@@ -104,7 +104,7 @@ const CampaignsTable = ({ campaigns }: IProps) => {
             default:
                 return cellValue;
         }
-    }, []);
+    }, [navigate]);
 
     return (
         <>

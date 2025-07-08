@@ -1,8 +1,9 @@
-import { Button, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
+import { addToast, Button, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
 import axios from 'axios';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FiArrowUpRight } from 'react-icons/fi';
-import { IoMdAddCircle } from "react-icons/io";
+import { IoIosRemoveCircle, IoMdAddCircle } from "react-icons/io";
+import { useNavigate } from 'react-router-dom';
 import type { IBillboard, ILocation } from '../../types';
 
 interface IProps {
@@ -12,6 +13,8 @@ interface IProps {
 }
 
 const BillboardsTable = ({ billboards, current, available }: IProps) => {
+    const navigate = useNavigate();
+    const [loadingAction, setLoadingAction] = useState(false);
 
     const columns = useMemo(() => ([
         {name: "Address", uid: "location"},
@@ -38,8 +41,32 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
     }, [page, billboardItems]);
 
     const addBillboard = useCallback(async (addUrl: string) => {
-        await axios.post(`${import.meta.env.VITE_API_URL}${addUrl}`)
-    }, []);
+        setLoadingAction(true);
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL}${addUrl}`)
+            window.location.reload();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            if (error?.response?.status === 401) navigate("/auth/signin");
+            addToast({ title: "Error", description: "Failed to add billboard to campaign" });
+        } finally {
+            setLoadingAction(false);
+        }
+    }, [navigate, setLoadingAction]);
+    
+    const removeBillboard = useCallback(async (removeUrl: string) => {
+        setLoadingAction(true);
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL}${removeUrl}`)
+            window.location.reload();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            if (error?.response?.status === 401) navigate("/auth/signin");
+            addToast({ title: "Error", description: "Failed to add billboard to campaign" });
+        } finally {
+            setLoadingAction(false);
+        }
+    }, [navigate, setLoadingAction]);
 
     const renderCell = useCallback((billboard: IBillboard, columnKey: keyof IBillboard) => {
         const cellValue = billboard[columnKey];
@@ -76,7 +103,9 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
             case "actions" as keyof IBillboard:
                 return (
                     <div className="flex items-center gap-2 justify-end">
-                        <Button isIconOnly variant="light" color="primary" 
+                        <Button isIconOnly variant="light" color="primary"
+                            isLoading={loadingAction}
+                            disabled={loadingAction} 
                             onPress={() => {
                                 
                             }} 
@@ -86,10 +115,22 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
                         </Button>
                         { available && (
                             <Button isIconOnly variant="light" color="success" 
+                                isLoading={loadingAction}
+                                disabled={loadingAction}
                                 onPress={() => addBillboard(billboard?.links?.actions?.find(action => action.name === "add_to_campaign")?.href || "")} 
                                 className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
                             >
-                                <IoMdAddCircle size={18} color="rgba(255,255,255,0.9)"/>
+                                <IoMdAddCircle size={24} color="rgba(74,214,43,0.9)"/>
+                            </Button>
+                        )}
+                        { current && (
+                            <Button isIconOnly variant="light" color="success" 
+                                isLoading={loadingAction}
+                                disabled={loadingAction}
+                                onPress={() => removeBillboard(billboard?.links?.actions?.find(action => action.name === "remove_from_campaign")?.href || "")} 
+                                className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                            >
+                                <IoIosRemoveCircle size={24} color="rgba(214,43,66,0.9)"/>
                             </Button>
                         )}
                     </div>
@@ -97,7 +138,7 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
             default:
                 return cellValue;
         }
-    }, []);
+    }, [loadingAction, addBillboard, removeBillboard, available, current]);
 
     return (
         <>

@@ -3,7 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/common/Loader";
-import LocationsNew from "../components/Locations/LocationsNew";
+import LocationsNewEdit from "../components/Locations/LocationsNewEdit";
 import LocationsTable from "../components/Locations/LocationsTable";
 import type { ILocation } from "../types";
 
@@ -49,7 +49,7 @@ const LocationsView = () => {
                       <span className="text-[18px] sm:text-[24px] font-[500]">Load a New Location</span>
                   </div>
                   <div className="w-full h-full flex grow justify-center items-center p-4 sm:p-[40px] border-[1px] border-blue-100 rounded-[9px] sm:rounded-[12px]">
-                      <LocationsNew onOpenChange={onOpenChange} />
+                      <LocationsNewEdit onOpenChange={onOpenChange} />
                   </div>
               </ModalBody>
           </ModalContent>

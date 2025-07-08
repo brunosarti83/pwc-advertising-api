@@ -1,13 +1,21 @@
-import { Button, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
+import { Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@heroui/react';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FiArrowUpRight } from 'react-icons/fi';
 import type { ILocation } from '../../types';
+import LocationsNewEdit from './LocationsNewEdit';
 
 interface IProps {
     locations: ILocation[]
 }
 
 const LocationsTable = ({ locations }: IProps) => {
+    const [locationToEdit, setlocationToEdit] = useState<ILocation | null>(null);
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+
+    const openEditLocation = useCallback((locationEdit: ILocation) => {
+        setlocationToEdit(locationEdit);
+        onOpen();
+    }, [onOpen]);
 
     const columns = useMemo(() => ([
         {name: "Address", uid: "address"},
@@ -72,9 +80,7 @@ const LocationsTable = ({ locations }: IProps) => {
                 return (
                     <div className="flex flex-col items-center">
                         <Button isIconOnly variant="light" color="primary" 
-                            onPress={() => {
-                                
-                            }} 
+                            onPress={() => openEditLocation(location)} 
                             className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
                         >
                             <FiArrowUpRight size={18} color="#2F6BDC"/>
@@ -84,7 +90,7 @@ const LocationsTable = ({ locations }: IProps) => {
             default:
                 return cellValue;
         }
-    }, []);
+    }, [openEditLocation]);
 
     return (
         <>
@@ -135,6 +141,18 @@ const LocationsTable = ({ locations }: IProps) => {
                 )}
                 </TableBody>
             </Table>
+            <Modal className="bg-zinc-800" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
+                <ModalContent className="p-2 sm:p-4">
+                    <ModalBody>
+                        <div className="h-full flex items-center gap-2">
+                            <span className="text-[18px] sm:text-[24px] font-[500]">Edit Location</span>
+                        </div>
+                        <div className="w-full h-full flex grow justify-center items-center p-4 sm:p-[40px] border-[1px] border-blue-100 rounded-[9px] sm:rounded-[12px]">
+                            <LocationsNewEdit onOpenChange={onOpenChange} location={locationToEdit} />
+                        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
         </>
     )
 }

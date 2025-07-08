@@ -30,6 +30,7 @@ const CampaignBillboardsView = () => {
   }, [navigate, id]);
 
   useEffect(() => {
+    if (!campaign) return;
     const fetchAvailable = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/availability/?campaign_id=${id}`);
@@ -44,7 +45,7 @@ const CampaignBillboardsView = () => {
     }
 
     fetchAvailable();
-  }, [navigate, id]);
+  }, [navigate, id, campaign]);
 
   const currentBillboards = useMemo(() => campaign?.billboards, [campaign]);
 
@@ -65,9 +66,10 @@ const CampaignBillboardsView = () => {
               <h3 className="text-[24px] w-fit mr-auto">Current Billboards in this Campaign</h3>
                 <BillboardsTable billboards={currentBillboards} current />
             </div>
+            <span className="text-[24px]">Total Cost: {campaign?.total_dollar_amount}</span>
             <div className="flex flex-col gap-4 w-full">
               <h3 className="text-[24px] w-fit mr-auto">Available Billboards for this Campaign</h3>
-                <BillboardsTable billboards={availableBillboards} />
+                <BillboardsTable billboards={availableBillboards} available />
             </div>
           </div>
         )}

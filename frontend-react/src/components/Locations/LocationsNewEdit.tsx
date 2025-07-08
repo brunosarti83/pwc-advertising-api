@@ -3,12 +3,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { FormProvider, useForm } from "react-hook-form";
 import { z as zod } from "zod";
-import type { INewLocation } from "../../types";
+import type { ILocation, INewLocation } from "../../types";
 
 interface IProps {
   onOpenChange: () => void;
+  location?: ILocation | null;
 }
-const LocationsNew = ({ onOpenChange }: IProps) => {  
+const LocationsNewEdit = ({ onOpenChange, location }: IProps) => {  
   
   const NewLocationSchema = zod.object({
     address: zod.string(),
@@ -20,12 +21,12 @@ const LocationsNew = ({ onOpenChange }: IProps) => {
   });
 
   const defaultValuesNewLocation: INewLocation = {
-    address: "",
-    city: "",
-    state: "",
-    country_code: "",
-    lat: 0,
-    lng: 0
+    address: location?.address || "",
+    city: location?.city || "",
+    state: location?.state || "",
+    country_code: location?.country_code || "",
+    lat: location?.lat || 0,
+    lng: location?.lng || 0
   };
 
   const methods = useForm<INewLocation>({
@@ -45,18 +46,14 @@ const LocationsNew = ({ onOpenChange }: IProps) => {
   const onSubmit = handleSubmit(
     async (data) => {
       try {
-        const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/locations`,
-        data
-        );
-        if (response.status === 201) {
-            addToast({
-                title: "Location created!"
-            });
-            onOpenChange();
-            // Reload the page to see the new billboard
-            window.location.reload();
-        }
+        if (!location) await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/locations`, data);
+        else await axios.patch(`${import.meta.env.VITE_API_URL}/api/v1/locations/${location?.id}`, data);
+        addToast({
+            title: "Success!"
+        });
+        onOpenChange();
+        // Reload the page to see the new location
+        window.location.reload();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         addToast({ title: "Error", description: "Oops, something went wrong" });
@@ -130,7 +127,7 @@ const LocationsNew = ({ onOpenChange }: IProps) => {
                   radius="sm"
                   className="w-full"
                 >
-                  Create
+                  { location ? "Save" : "Create" }
                 </Button>
               </Form>
             </FormProvider>
@@ -139,4 +136,4 @@ const LocationsNew = ({ onOpenChange }: IProps) => {
   )
 }
 
-export default LocationsNew
+export default LocationsNewEdit
