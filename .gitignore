@@ -25,7 +25,6 @@ alembic.ini
 # Docker
 Dockerfile.local
 *.dockerignore
-docker-compose.yml
 
 # Testing
 .pytest_cache/
@@ -50,3 +49,6 @@ Thumbs.db
 *.bak
 *.tmp
 *.cache
+
+# Node
+node_modules

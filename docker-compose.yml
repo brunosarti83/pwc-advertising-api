@@ -1,0 +1,29 @@
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    container_name: advertising-redis
+    restart: unless-stopped
+    networks:
+      - app-network
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    container_name: advertising-api
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_DB_URL=${SUPABASE_DB_URL}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
