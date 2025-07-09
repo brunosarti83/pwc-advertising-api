@@ -25,7 +25,6 @@ erDiagram
     BILLBOARDS }o--o{ CAMPAIGNS : associated
     CAMPAIGNS ||--o{ CAMPAIGN_BILLBOARDS : links
     BILLBOARDS ||--o{ CAMPAIGN_BILLBOARDS : links
-    USERS ||--o{ CAMPAIGNS : created_by
     LOCATIONS {
         text id PK "e.g., loc_<uuid>"
         string address
