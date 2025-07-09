@@ -9,11 +9,11 @@ interface IProps {
 }
 
 const LocationsTable = ({ locations }: IProps) => {
-    const [locationToEdit, setlocationToEdit] = useState<ILocation | null>(null);
+    const [locationToEdit, setLocationToEdit] = useState<ILocation | null>(null);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     const openEditLocation = useCallback((locationEdit: ILocation) => {
-        setlocationToEdit(locationEdit);
+        setLocationToEdit(locationEdit);
         onOpen();
     }, [onOpen]);
 

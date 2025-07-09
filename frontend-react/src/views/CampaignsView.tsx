@@ -2,7 +2,7 @@ import { Button, Modal, ModalBody, ModalContent, useDisclosure } from "@heroui/r
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CampaignsNew from "../components/Campaigns/CampaignsNew";
+import CampaignsNewEdit from "../components/Campaigns/CampaignsNewEdit";
 import CampaignsTable from "../components/Campaigns/CampaignsTable";
 import Loader from "../components/common/Loader";
 import type { ICampaign } from "../types";
@@ -49,7 +49,7 @@ const CampaignsView = () => {
                       <span className="text-[18px] sm:text-[24px] font-[500]">Load a New Campaign</span>
                   </div>
                   <div className="w-full h-full flex grow justify-center items-center p-4 sm:p-[40px] border-[1px] border-blue-100 rounded-[9px] sm:rounded-[12px]">
-                      <CampaignsNew onOpenChange={onOpenChange} />
+                      <CampaignsNewEdit onOpenChange={onOpenChange} />
                   </div>
               </ModalBody>
           </ModalContent>

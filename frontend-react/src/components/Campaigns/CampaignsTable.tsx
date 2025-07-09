@@ -1,9 +1,10 @@
-import { Button, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
+import { Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@heroui/react';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FaSign } from 'react-icons/fa';
 import { FiArrowUpRight } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import type { ICampaign } from '../../types';
+import CampaignsNewEdit from './CampaignsNewEdit';
 
 interface IProps {
     campaigns: ICampaign[]
@@ -11,6 +12,13 @@ interface IProps {
 
 const CampaignsTable = ({ campaigns }: IProps) => {
     const navigate = useNavigate();
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [campaignToEdit, setCampaignToEdit] = useState<ICampaign | null>(null);
+    
+    const openEditCampaign = useCallback((campaignEdit: ICampaign) => {
+        setCampaignToEdit(campaignEdit);
+        onOpen();
+    }, [onOpen]);
     
     const columns = useMemo(() => ([
         {name: "Name", uid: "name"},
@@ -84,9 +92,7 @@ const CampaignsTable = ({ campaigns }: IProps) => {
                 return (
                     <div className="flex gap-2 items-center justify-end">
                         <Button isIconOnly variant="light" color="primary" 
-                            onPress={() => {
-                                
-                            }} 
+                            onPress={() => openEditCampaign(campaign)} 
                             className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
                         >
                             <FiArrowUpRight size={18} color="#2F6BDC"/>
@@ -104,7 +110,7 @@ const CampaignsTable = ({ campaigns }: IProps) => {
             default:
                 return cellValue;
         }
-    }, [navigate]);
+    }, [navigate, openEditCampaign]);
 
     return (
         <>
@@ -155,6 +161,18 @@ const CampaignsTable = ({ campaigns }: IProps) => {
                 )}
                 </TableBody>
             </Table>
+            <Modal className="bg-zinc-800" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
+                <ModalContent className="p-2 sm:p-4">
+                    <ModalBody>
+                        <div className="h-full flex items-center gap-2">
+                            <span className="text-[18px] sm:text-[24px] font-[500]">Edit Location</span>
+                        </div>
+                        <div className="w-full h-full flex grow justify-center items-center p-4 sm:p-[40px] border-[1px] border-blue-100 rounded-[9px] sm:rounded-[12px]">
+                            <CampaignsNewEdit onOpenChange={onOpenChange} campaign={campaignToEdit} />
+                        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
         </>
     )
 }

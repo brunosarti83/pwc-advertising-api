@@ -48,9 +48,7 @@ const LocationsNewEdit = ({ onOpenChange, location }: IProps) => {
       try {
         if (!location) await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/locations`, data);
         else await axios.patch(`${import.meta.env.VITE_API_URL}/api/v1/locations/${location?.id}`, data);
-        addToast({
-            title: "Success!"
-        });
+        addToast({ title: "Success!" });
         onOpenChange();
         // Reload the page to see the new location
         window.location.reload();

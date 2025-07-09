@@ -1,10 +1,11 @@
-import { addToast, Button, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
+import { addToast, Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@heroui/react';
 import axios from 'axios';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FiArrowUpRight } from 'react-icons/fi';
 import { IoIosRemoveCircle, IoMdAddCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import type { IBillboard, ILocation } from '../../types';
+import BillboardsNewEdit from './BillboardsNewEdit';
 
 interface IProps {
     billboards: IBillboard[];
@@ -15,6 +16,13 @@ interface IProps {
 const BillboardsTable = ({ billboards, current, available }: IProps) => {
     const navigate = useNavigate();
     const [loadingAction, setLoadingAction] = useState(false);
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [billboardToEdit, setBillboardToEdit] = useState<IBillboard | null>(null);
+
+    const openEditBillboard = useCallback((billboardEdit: IBillboard) => {
+        setBillboardToEdit(billboardEdit);
+        onOpen();
+    }, [onOpen]);
 
     const columns = useMemo(() => ([
         {name: "Address", uid: "location"},
@@ -106,9 +114,7 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
                         <Button isIconOnly variant="light" color="primary"
                             isLoading={loadingAction}
                             disabled={loadingAction} 
-                            onPress={() => {
-                                
-                            }} 
+                            onPress={() => openEditBillboard(billboard)} 
                             className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
                         >
                             <FiArrowUpRight size={18} color="#2F6BDC"/>
@@ -138,7 +144,7 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
             default:
                 return cellValue;
         }
-    }, [loadingAction, addBillboard, removeBillboard, available, current]);
+    }, [loadingAction, addBillboard, removeBillboard, available, current, openEditBillboard]);
 
     return (
         <>
@@ -189,6 +195,18 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
                 )}
                 </TableBody>
             </Table>
+            <Modal className="bg-zinc-800" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
+                <ModalContent className="p-2 sm:p-4">
+                    <ModalBody>
+                        <div className="h-full flex items-center gap-2">
+                            <span className="text-[18px] sm:text-[24px] font-[500]">Edit Location</span>
+                        </div>
+                        <div className="w-full h-full flex grow justify-center items-center p-4 sm:p-[40px] border-[1px] border-blue-100 rounded-[9px] sm:rounded-[12px]">
+                            <BillboardsNewEdit onOpenChange={onOpenChange} billboard={billboardToEdit} />
+                        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
         </>
     )
 }

@@ -4,14 +4,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z as zod } from "zod";
-import type { ILocation, INewBillboard } from "../../types";
+import type { IBillboard, ILocation, INewBillboard } from "../../types";
 
 interface IProps {
   onOpenChange: () => void;
+  billboard?: IBillboard | null;
 }
-const BillboardsNew = ({ onOpenChange }: IProps) => {  
+const BillboardsNewEdit = ({ onOpenChange, billboard }: IProps) => {  
   const [locations, setLocations] = useState<ILocation[]>([]);
-  const [selected, setSelected] = useState<string>("");
   
   useEffect(() => {
     const fetchLocations = async () => {
@@ -45,10 +45,10 @@ const BillboardsNew = ({ onOpenChange }: IProps) => {
   });
 
   const defaultValuesNewBillboard: INewBillboard = {
-    location_id: "",
-    width_mt: 0,
-    height_mt: 0,
-    dollars_per_day: 0
+    location_id: billboard?.location_id || "",
+    width_mt: billboard?.width_mt || 0,
+    height_mt: billboard?.height_mt || 0,
+    dollars_per_day: billboard?.dollars_per_day || 0
   };
 
   const methods = useForm<INewBillboard>({
@@ -65,23 +65,14 @@ const BillboardsNew = ({ onOpenChange }: IProps) => {
 
   const values = watch();
 
-  useEffect(() => setValue("location_id", selected), [selected, setValue]);
-
   const onSubmit = handleSubmit(
     async (data) => {
       try {
-        const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/billboards`,
-        data
-        );
-        if (response.status === 201) {
-            addToast({
-                title: "Billboard created!"
-            });
-            onOpenChange();
-            // Reload the page to see the new billboard
-            window.location.reload();
-        }
+        if (!billboard) await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/billboards`, data);
+        else await axios.patch(`${import.meta.env.VITE_API_URL}/api/v1/billboards/${billboard?.id}`, data);
+        addToast({ title: "Success!" });
+        onOpenChange();
+        window.location.reload();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         addToast({ title: "Error", description: "Oops, something went wrong" });
@@ -100,8 +91,8 @@ const BillboardsNew = ({ onOpenChange }: IProps) => {
                   label="Location"
                   placeholder={locations.length ? "Select a location" : "Loading locations..."}
                   variant="bordered"
-                  selectedKeys={[selected]}
-                  onChange={(e) => { console.log(e.target.value); setSelected(e.target.value)}}
+                  selectedKeys={[values.location_id]}
+                  onChange={(e) => { setValue("location_id", e.target.value)}}
                 >
                     { locations?.map((loc) => (
                         <SelectItem key={loc?.id} textValue={`${loc?.address}, ${loc?.city}, ${loc?.state} (${loc?.country_code})`}>
@@ -162,4 +153,4 @@ const BillboardsNew = ({ onOpenChange }: IProps) => {
   )
 }
 
-export default BillboardsNew
+export default BillboardsNewEdit

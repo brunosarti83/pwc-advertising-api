@@ -4,12 +4,13 @@ import { parseDate } from "@internationalized/date";
 import axios from "axios";
 import { FormProvider, useForm } from "react-hook-form";
 import { z as zod } from "zod";
-import type { INewCampaign } from "../../types";
+import type { ICampaign, INewCampaign } from "../../types";
 
 interface IProps {
   onOpenChange: () => void;
+  campaign?: ICampaign | null;
 }
-const CampaignsNew = ({ onOpenChange }: IProps) => {  
+const CampaignsNewEdit = ({ onOpenChange, campaign }: IProps) => {  
 
   const NewCampaignSchema = zod.object({
     name: zod.string().min(1, { message: "Name is required" }),
@@ -18,9 +19,9 @@ const CampaignsNew = ({ onOpenChange }: IProps) => {
   });
 
   const defaultValuesNewCampaign: INewCampaign = {
-    name: "",
-    start_date: new Date().toISOString().split("T")[0],
-    end_date: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split("T")[0],
+    name: campaign?.name || "",
+    start_date: campaign?.start_date || new Date().toISOString().split("T")[0],
+    end_date: campaign?.end_date || new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split("T")[0],
   };
 
   const methods = useForm<INewCampaign>({
@@ -40,18 +41,11 @@ const CampaignsNew = ({ onOpenChange }: IProps) => {
   const onSubmit = handleSubmit(
     async (data) => {
       try {
-        const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/campaigns`,
-        data
-        );
-        if (response.status === 201) {
-            addToast({
-                title: "Campaign created!"
-            });
-            onOpenChange();
-            // Reload the page to see the new campaign
-            window.location.reload();
-        }
+        if (!campaign) await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/campaigns`, data);
+        else await axios.patch(`${import.meta.env.VITE_API_URL}/api/v1/campaigns/${campaign?.id}`, data);
+        addToast({ title: "Success!" });
+        onOpenChange();
+        window.location.reload();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         addToast({ title: "Error", description: "Oops, something went wrong" });
@@ -111,4 +105,4 @@ const CampaignsNew = ({ onOpenChange }: IProps) => {
   )
 }
 
-export default CampaignsNew
+export default CampaignsNewEdit

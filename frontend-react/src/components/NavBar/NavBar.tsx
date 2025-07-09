@@ -2,11 +2,12 @@ import { Button, Link, Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@h
 import axios from "axios";
 import { useCallback } from "react";
 import { FaSign } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 
 const NavBar = () => {
     const navigate = useNavigate();
+    const { pathname } = useLocation();
 
     const onSignOut = useCallback(async () => {
         await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/auth/sign-out`);
@@ -21,17 +22,17 @@ const NavBar = () => {
         <p className="font-bold font-roboto text-[24px]">PwC Advertising</p>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarItem>
+        <NavbarItem isActive={pathname.startsWith("/campaigns")}>
           <Link className="text-gray-50" color="foreground" href="/campaigns">
             Campaigns
           </Link>
         </NavbarItem>
-        <NavbarItem isActive>
+        <NavbarItem isActive={pathname.startsWith("/billboards")}>
           <Link className="text-gray-50" href="/billboards">
             Billboards
           </Link>
         </NavbarItem>
-        <NavbarItem>
+        <NavbarItem isActive={pathname.startsWith("/locations")}>
           <Link className="text-gray-50" color="foreground" href="/locations">
             Locations
           </Link>
