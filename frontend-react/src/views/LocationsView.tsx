@@ -42,7 +42,7 @@ const LocationsView = () => {
           <LocationsTable locations={locations} />
         )}
       </div>
-      <Modal className="bg-zinc-800" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
+      <Modal className="bg-zinc-800 z-[1000]" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
           <ModalContent className="p-2 sm:p-4">
               <ModalBody>
                   <div className="h-full flex items-center gap-2">

@@ -3,8 +3,10 @@ import axios from 'axios';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FiArrowUpRight } from 'react-icons/fi';
 import { IoIosRemoveCircle, IoMdAddCircle } from "react-icons/io";
+import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import type { IBillboard, ILocation } from '../../types';
+import ItemsMap from '../common/ItemsMap';
 import BillboardsNewEdit from './BillboardsNewEdit';
 
 interface IProps {
@@ -76,6 +78,17 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
         }
     }, [navigate, setLoadingAction]);
 
+    const onDeleteBillboard = useCallback(async (billboardId: string) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/billboards/${billboardId}`);
+            addToast({ title: "Success!", description: "Billboard deleted successfully." });
+            window.location.reload();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            addToast({ title: "Error", description: "Oops, something went wrong" });
+        }
+    }, [])
+
     const renderCell = useCallback((billboard: IBillboard, columnKey: keyof IBillboard) => {
         const cellValue = billboard[columnKey];
         switch (columnKey) {
@@ -111,16 +124,18 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
             case "actions" as keyof IBillboard:
                 return (
                     <div className="flex items-center gap-2 justify-end">
-                        <Tooltip content="Edit Billboard" showArrow={true}>
-                            <Button isIconOnly variant="light" color="primary"
-                                isLoading={loadingAction}
-                                disabled={loadingAction} 
-                                onPress={() => openEditBillboard(billboard)} 
-                                className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
-                            >
-                                <FiArrowUpRight size={18} color="#2F6BDC"/>
-                            </Button>
-                        </Tooltip>
+                        { (!current && !available) && (
+                            <Tooltip content="Edit Billboard" showArrow={true}>
+                                <Button isIconOnly variant="light" color="primary"
+                                    isLoading={loadingAction}
+                                    disabled={loadingAction} 
+                                    onPress={() => openEditBillboard(billboard)} 
+                                    className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                                >
+                                    <FiArrowUpRight size={18} color="#2F6BDC"/>
+                                </Button>
+                            </Tooltip>
+                        )}
                         { available && (
                             <Tooltip content="Add To Campaign" showArrow={true}>
                                 <Button isIconOnly variant="light" color="success" 
@@ -145,63 +160,77 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
                                 </Button>
                             </Tooltip>
                         )}
+                        { (!current && !available) && (
+                            <Tooltip content="Delete Billboard" showArrow={true}>
+                                <Button isIconOnly variant="light" color="danger" 
+                                    onPress={() => onDeleteBillboard(billboard?.id)} 
+                                    className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                                >
+                                    <MdDelete size={18} color="rgba(255,255,255,0.9)"/>
+                                </Button>
+                            </Tooltip>
+                        )}
                     </div>
                 );
             default:
                 return cellValue;
         }
-    }, [loadingAction, addBillboard, removeBillboard, available, current, openEditBillboard]);
+    }, [loadingAction, addBillboard, removeBillboard, available, current, openEditBillboard, onDeleteBillboard]);
 
     return (
         <>
-            <Table 
-                aria-label="Billboards table"
-                classNames={{
-                    wrapper: "!border-blue-100 border-[1px] shadow-none user-select-none overflow-x-auto w-[1050px]",
-                    tr: "border-b border-divider border-blue-100", 
-                    th: "!bg-transparent border-b border-blue-100 text-[14px] text-white font-roboto font-[500] pb-4", 
-                }}
-                bottomContent={
-                    <div className="flex w-full justify-center">
-                        <Pagination
-                        variant="bordered"
-                        showControls
-                        showShadow
-                        color="primary"
-                        radius="sm"
-                        page={page}
-                        total={pages}
-                        onChange={(page) => setPage(page)}
-                        classNames={{
-                            base: "",
-                            wrapper: "",
-                            item: "rounded-[6px] border-gray-500 border-[1px] data-[active=true]:text-blue-400 data-[active=true]:border-[2px] data-[active=true]:border-blue-400",
-                            cursor: "bg-transparent text-blue-400 font-bold border-[1px] border-blue-400",
-                        }}
-                        />
-                    </div>
-                }
-            >
-                <TableHeader columns={columns}>
-                {(column) => (
-                    <TableColumn key={column.uid} align={"center"}>
-                        {column.name}
-                    </TableColumn>
-                )}
-                </TableHeader>
-                <TableBody items={items}>
-                {(item) => (
-                    <TableRow key={item.id}>
-                        {(columnKey) => (
-                            <TableCell className="">
-                                {renderCell(item, columnKey as keyof IBillboard) as ReactNode}
-                            </TableCell>
-                        )}
-                    </TableRow>
-                )}
-                </TableBody>
-            </Table>
-            <Modal className="bg-zinc-800" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
+            <div className="w-full h-full flex flex-col gap-4">
+
+                <Table 
+                    aria-label="Billboards table"
+                    classNames={{
+                        wrapper: "!border-blue-100 border-[1px] shadow-none user-select-none overflow-x-auto w-[1050px]",
+                        tr: "border-b border-divider border-blue-100", 
+                        th: "!bg-transparent border-b border-blue-100 text-[14px] text-white font-roboto font-[500] pb-4", 
+                    }}
+                    bottomContent={
+                        <div className="flex w-full justify-center">
+                            <Pagination
+                            variant="bordered"
+                            showControls
+                            showShadow
+                            color="primary"
+                            radius="sm"
+                            page={page}
+                            total={pages}
+                            onChange={(page) => setPage(page)}
+                            classNames={{
+                                base: "",
+                                wrapper: "",
+                                item: "rounded-[6px] border-gray-500 border-[1px] data-[active=true]:text-blue-400 data-[active=true]:border-[2px] data-[active=true]:border-blue-400",
+                                cursor: "bg-transparent text-blue-400 font-bold border-[1px] border-blue-400",
+                            }}
+                            />
+                        </div>
+                    }
+                >
+                    <TableHeader columns={columns}>
+                    {(column) => (
+                        <TableColumn key={column.uid} align={"center"}>
+                            {column.name}
+                        </TableColumn>
+                    )}
+                    </TableHeader>
+                    <TableBody items={items}>
+                    {(item) => (
+                        <TableRow key={item.id}>
+                            {(columnKey) => (
+                                <TableCell className="">
+                                    {renderCell(item, columnKey as keyof IBillboard) as ReactNode}
+                                </TableCell>
+                            )}
+                        </TableRow>
+                    )}
+                    </TableBody>
+                </Table>
+                <ItemsMap items={items.map(i => i?.location)} />
+            </div>
+            <Modal className="bg-zinc-800 z-[1000]" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
                 <ModalContent className="p-2 sm:p-4">
                     <ModalBody>
                         <div className="h-full flex items-center gap-2">

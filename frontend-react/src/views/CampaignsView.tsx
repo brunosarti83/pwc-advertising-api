@@ -39,10 +39,12 @@ const CampaignsView = () => {
         </div>
         {loading && <Loader />}
         {campaigns && (
-          <CampaignsTable campaigns={campaigns} />
+          <div className="w-full h-full flex flex-col gap-4">
+            <CampaignsTable campaigns={campaigns} />
+          </div>
         )}
       </div>
-      <Modal className="bg-zinc-800" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
+      <Modal className="bg-zinc-800 z-[1000]" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
           <ModalContent className="p-2 sm:p-4">
               <ModalBody>
                   <div className="h-full flex items-center gap-2">

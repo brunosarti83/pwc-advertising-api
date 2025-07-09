@@ -1,7 +1,9 @@
-import { Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from '@heroui/react';
+import { addToast, Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from '@heroui/react';
+import axios from 'axios';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FaSign } from 'react-icons/fa';
 import { FiArrowUpRight } from 'react-icons/fi';
+import { MdDelete } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import type { ICampaign } from '../../types';
 import CampaignsNewEdit from './CampaignsNewEdit';
@@ -19,6 +21,19 @@ const CampaignsTable = ({ campaigns }: IProps) => {
         setCampaignToEdit(campaignEdit);
         onOpen();
     }, [onOpen]);
+
+    const onDeleteCampaign = useCallback(async (campaignId: string) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/campaigns/${campaignId}`);
+            addToast({ title: "Success!", description: "Campaign deleted successfully." });
+            window.location.reload();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            if (error?.response?.status === 409) {
+                addToast({ title: "Forbidden", description: "This campaign already has billboards assigned to it" });
+            } else addToast({ title: "Error", description: "Oops, something went wrong" });
+        }
+    }, [])
     
     const columns = useMemo(() => ([
         {name: "Name", uid: "name"},
@@ -109,12 +124,20 @@ const CampaignsTable = ({ campaigns }: IProps) => {
                                 <FaSign size={18} color="rgba(255,255,255,0.9)"/>
                             </Button>
                         </Tooltip>
+                        <Tooltip content="Delete Campaign" showArrow={true}>
+                            <Button isIconOnly variant="light" color="danger" 
+                                onPress={() => onDeleteCampaign(campaign?.id)} 
+                                className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                            >
+                                <MdDelete size={18} color="rgba(255,255,255,0.9)"/>
+                            </Button>
+                        </Tooltip>
                     </div>
                 );
             default:
                 return cellValue;
         }
-    }, [navigate, openEditCampaign]);
+    }, [navigate, openEditCampaign, onDeleteCampaign]);
 
     return (
         <>
@@ -165,7 +188,7 @@ const CampaignsTable = ({ campaigns }: IProps) => {
                 )}
                 </TableBody>
             </Table>
-            <Modal className="bg-zinc-800" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
+            <Modal className="bg-zinc-800 z-[1000]" isOpen={isOpen} onOpenChange={onOpenChange} size="5xl" scrollBehavior='outside'>
                 <ModalContent className="p-2 sm:p-4">
                     <ModalBody>
                         <div className="h-full flex items-center gap-2">

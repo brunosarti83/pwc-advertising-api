@@ -16,7 +16,7 @@ const NavBar = () => {
     }, [navigate])
 
     return (
-    <Navbar className="bg-zinc-900">
+    <Navbar className="bg-zinc-900 z-[10000]">
       <NavbarBrand>
         <FaSign size={24} />
         <p className="font-bold font-roboto text-[24px]">PwC Advertising</p>
