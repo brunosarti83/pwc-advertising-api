@@ -13,10 +13,6 @@ env/
 dist/
 build/
 
-# Environment variables
-.env
-*.env
-
 # Alembic
 migrations/versions/*.pyc
 alembic.ini

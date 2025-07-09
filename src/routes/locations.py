@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, File, UploadFile
 from sqlmodel.ext.asyncio.session import AsyncSession
 from supabase import Client
 
@@ -56,4 +56,23 @@ async def update_location(request: Request, id: str, location_update: LocationUp
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     result = await LocationService(db).update_location(id, location_update)
+    return wrap_data(result)
+
+@router.post("/bulk_load", response_model=Dict[str, Any], status_code=201)
+@limiter.limit("100/minute")
+async def bulk_load_locations(
+    request: Request,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    supabase: Client = Depends(get_supabase)
+):
+    user = supabase.auth.get_user()
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if file.content_type != "text/csv":
+        raise HTTPException(status_code=400, detail="File must be a CSV")
+    contents = await file.read()
+    import io
+    csv_file = io.StringIO(contents.decode("utf-8"))
+    result = await LocationService(db).bulk_load_locations_from_csv(csv_file)
     return wrap_data(result)

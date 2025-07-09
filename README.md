@@ -82,6 +82,7 @@ erDiagram
   - Rate Limiting: Per-user (100 requests/min) with `slowapi` and `redis`
   - Uses dependency injection and repository pattern with generics.
   - Uses Type-Hints throught the code.
+  - Bulk-loads locations with a CSV file
 
 - **Endpoints**:
 
@@ -94,6 +95,7 @@ erDiagram
   (protected)
 
   - `/locations/`: GET (list, exclude `is_deleted = true`, accepts `?limit=&offset=`), POST, GET `{id}`, PUT `{id}`, DELETE `{id}`
+  - `/locations/bulk_load`: POST (this endpoint accepts a csv file with locations to bulk load. It was not made available through the frontend but it can be tested through the `/docs` or using a client like Postman, etc. An example CSV file with new locations is provided in this repository),
   - `/billboards/`: GET (list, exclude `is_deleted = true`, accepts `?limit=&offset=`), POST, GET `{id}`, PUT `{id}`, DELETE `{id}`
   - `/billboards/availabile?campaign_id={camp_id}`: GET (list, exclude `is_deleted = true`, filters availability for this campaigns dates, and provides actionable links to add the listed billboards to a campaign)
   - `/billboards/available?start_date={YYYY-MM-DD}&end_date={YYYY-MM-DD}`: GET (list, exclude `is_deleted = true`, filters availability for the given dates)
@@ -106,13 +108,14 @@ erDiagram
 
 - built with Vite React
 - Typescript throught the code.
-- Types the models from the Domain layer
+- Follows domain layer model separation
 - Uses react-router
 - Global state management deemed not necessary at this point
 - Allows for all CRUD operations
 
 ### DEPLOYMENT:
 
+- **Please RENAME both .env.example files to .env in the root directory and inside frontend-react/ before running**
 - **Docker container**: Run with `docker-compose up --build --detach` from root directory.
   - backend: localhost:8000
   - swagger-docs: localhost:8000/docs

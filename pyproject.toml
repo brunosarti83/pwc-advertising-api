@@ -26,6 +26,7 @@ mypy = "^1.11.2"
 graphene = "^3.3.0"
 psycopg2-binary = "^2.9.9"
 asyncpg = "^0.30.0"
+python-multipart = "^0.0.20"
 
 [tool.ruff]
 line-length = 100
