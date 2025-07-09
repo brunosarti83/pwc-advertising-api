@@ -10,7 +10,7 @@ interface IProps {
 
 const ItemsMap = ({ items }: IProps) => {
   
-  const center: [number, number] = useMemo(() => [Number(items[0].lat), Number(items[0].lng)], [items]);
+  const center: [number, number] = useMemo(() => [items?.[0]?.lat, items?.[0]?.lng], [items]);
   
   if (!items.length) return <div>No items to display</div>;
 
@@ -26,6 +26,7 @@ const ItemsMap = ({ items }: IProps) => {
 
   function SetViewOnClick({ coordinates }: { coordinates: [number, number] }) {
     const map = useMap();
+    if (!coordinates) return null;
     map.setView(coordinates, map.getZoom());
     return null;
   }
