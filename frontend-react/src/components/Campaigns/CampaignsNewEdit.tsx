@@ -46,9 +46,11 @@ const CampaignsNewEdit = ({ onOpenChange, campaign }: IProps) => {
         addToast({ title: "Success!" });
         onOpenChange();
         window.location.reload();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        addToast({ title: "Error", description: "Oops, something went wrong" });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error?.response?.status === 409) {
+          addToast({ title: "Forbidden", description: "This campaign already has billboards assigned to it" });
+        } else addToast({ title: "Error", description: "Oops, something went wrong" });
       }
     },
     () => {

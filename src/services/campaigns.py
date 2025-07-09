@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 from typing import List
 
@@ -18,6 +19,15 @@ class CampaignService:
 
     async def create_campaign(self, campaign: CampaignCreate) -> Campaign:
         try:
+            from datetime import datetime
+            start_date = campaign.start_date
+            end_date = campaign.end_date
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            if isinstance(end_date, str):
+                end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            if start_date >= end_date:
+                raise HTTPException(status_code=400, detail="start_date must be before end_date")
             db_campaign = CampaignDB(**campaign.dict())
             created = await self.repository.create(db_campaign)
             links = HATEOASLinks(
@@ -141,6 +151,21 @@ class CampaignService:
             if not campaign:
                 raise HTTPException(status_code=404, detail="Campaign not found")
             update_data = campaign_update.dict(exclude_unset=True)
+
+            if "start_date" in update_data or "end_date" in update_data:
+                start_date = update_data.get("start_date", campaign.start_date)
+                end_date = update_data.get("end_date", campaign.end_date)
+                if isinstance(start_date, str):
+                    start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+                if isinstance(end_date, str):
+                    end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+                if start_date >= end_date:
+                    raise HTTPException(status_code=400, detail="start_date must be before end_date")
+                
+                billboards = await self.campaign_billboard_repository.get_billboards_for_campaign(id)
+                if billboards & (start_date != campaign.start_date or end_date != campaign.end_date): 
+                    raise HTTPException(status_code=409, detail="Cannot change campaign dates when billboards are already assigned")
+            
             for key, value in update_data.items():
                 setattr(campaign, key, value)
             await self.repository.update(campaign)
