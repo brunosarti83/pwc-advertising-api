@@ -17,7 +17,15 @@ def get_supabase() -> Client:
 def get_db_engine() -> AsyncEngine:
     return create_async_engine(
         os.getenv("SUPABASE_DB_URL"),
-        connect_args={"statement_cache_size": 0}
+        pool_size=5,
+        max_overflow=10,
+        connect_args={
+            "statement_cache_size": 0,
+            "server_settings": {
+                "statement_timeout": "60s",  
+                "idle_in_transaction_session_timeout": "30s" 
+            }
+        }
     )
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

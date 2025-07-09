@@ -1,4 +1,4 @@
-import { Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@heroui/react';
+import { Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from '@heroui/react';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FiArrowUpRight } from 'react-icons/fi';
 import type { ILocation } from '../../types';
@@ -79,12 +79,14 @@ const LocationsTable = ({ locations }: IProps) => {
             case "actions" as keyof ILocation:
                 return (
                     <div className="flex flex-col items-center">
-                        <Button isIconOnly variant="light" color="primary" 
-                            onPress={() => openEditLocation(location)} 
-                            className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
-                        >
-                            <FiArrowUpRight size={18} color="#2F6BDC"/>
-                        </Button>
+                        <Tooltip content="Edit Location" showArrow={true}>
+                            <Button isIconOnly variant="light" color="primary" 
+                                onPress={() => openEditLocation(location)} 
+                                className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                            >
+                                <FiArrowUpRight size={18} color="#2F6BDC"/>
+                            </Button>
+                        </Tooltip>
                     </div>
                 );
             default:

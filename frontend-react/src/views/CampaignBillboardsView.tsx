@@ -33,7 +33,7 @@ const CampaignBillboardsView = () => {
     if (!campaign) return;
     const fetchAvailable = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/availability/?campaign_id=${id}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/billboards/available?campaign_id=${id}`);
         setAvailableBillboards(response?.data?.data);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {

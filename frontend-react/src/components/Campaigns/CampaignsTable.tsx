@@ -1,4 +1,4 @@
-import { Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@heroui/react';
+import { Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from '@heroui/react';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FaSign } from 'react-icons/fa';
 import { FiArrowUpRight } from 'react-icons/fi';
@@ -91,20 +91,24 @@ const CampaignsTable = ({ campaigns }: IProps) => {
             case "actions" as keyof ICampaign:
                 return (
                     <div className="flex gap-2 items-center justify-end">
-                        <Button isIconOnly variant="light" color="primary" 
-                            onPress={() => openEditCampaign(campaign)} 
-                            className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
-                        >
-                            <FiArrowUpRight size={18} color="#2F6BDC"/>
-                        </Button>
-                        <Button isIconOnly variant="light" color="success" 
-                            onPress={() => {
-                               navigate(`/campaign-billboards/${campaign.id}`); 
-                            }} 
-                            className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
-                        >
-                            <FaSign size={18} color="rgba(255,255,255,0.9)"/>
-                        </Button>
+                        <Tooltip content="Edit Campaign" showArrow={true}>
+                            <Button isIconOnly variant="light" color="primary" 
+                                onPress={() => openEditCampaign(campaign)} 
+                                className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                            >
+                                <FiArrowUpRight size={18} color="#2F6BDC"/>
+                            </Button>
+                        </Tooltip>
+                        <Tooltip content="Manage Campaign's Billboards" showArrow={true}>
+                            <Button isIconOnly variant="light" color="success" 
+                                onPress={() => {
+                                navigate(`/campaign-billboards/${campaign.id}`); 
+                                }} 
+                                className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                            >
+                                <FaSign size={18} color="rgba(255,255,255,0.9)"/>
+                            </Button>
+                        </Tooltip>
                     </div>
                 );
             default:

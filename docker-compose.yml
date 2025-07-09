@@ -24,6 +24,18 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+  frontend:
+    build:
+      context: ./frontend-react
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    container_name: advertising-frontend
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - app-network
 networks:
   app-network:
     driver: bridge

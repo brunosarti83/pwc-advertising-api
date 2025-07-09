@@ -1,4 +1,4 @@
-import { addToast, Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@heroui/react';
+import { addToast, Button, Modal, ModalBody, ModalContent, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from '@heroui/react';
 import axios from 'axios';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { FiArrowUpRight } from 'react-icons/fi';
@@ -111,33 +111,39 @@ const BillboardsTable = ({ billboards, current, available }: IProps) => {
             case "actions" as keyof IBillboard:
                 return (
                     <div className="flex items-center gap-2 justify-end">
-                        <Button isIconOnly variant="light" color="primary"
-                            isLoading={loadingAction}
-                            disabled={loadingAction} 
-                            onPress={() => openEditBillboard(billboard)} 
-                            className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
-                        >
-                            <FiArrowUpRight size={18} color="#2F6BDC"/>
-                        </Button>
-                        { available && (
-                            <Button isIconOnly variant="light" color="success" 
+                        <Tooltip content="Edit Billboard" showArrow={true}>
+                            <Button isIconOnly variant="light" color="primary"
                                 isLoading={loadingAction}
-                                disabled={loadingAction}
-                                onPress={() => addBillboard(billboard?.links?.actions?.find(action => action.name === "add_to_campaign")?.href || "")} 
+                                disabled={loadingAction} 
+                                onPress={() => openEditBillboard(billboard)} 
                                 className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
                             >
-                                <IoMdAddCircle size={24} color="rgba(74,214,43,0.9)"/>
+                                <FiArrowUpRight size={18} color="#2F6BDC"/>
                             </Button>
+                        </Tooltip>
+                        { available && (
+                            <Tooltip content="Add To Campaign" showArrow={true}>
+                                <Button isIconOnly variant="light" color="success" 
+                                    isLoading={loadingAction}
+                                    disabled={loadingAction}
+                                    onPress={() => addBillboard(billboard?.links?.actions?.find(action => action.name === "add_to_campaign")?.href || "")} 
+                                    className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                                >
+                                    <IoMdAddCircle size={24} color="rgba(74,214,43,0.9)"/>
+                                </Button>
+                            </Tooltip>
                         )}
                         { current && (
-                            <Button isIconOnly variant="light" color="success" 
-                                isLoading={loadingAction}
-                                disabled={loadingAction}
-                                onPress={() => removeBillboard(billboard?.links?.actions?.find(action => action.name === "remove_from_campaign")?.href || "")} 
-                                className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
-                            >
-                                <IoIosRemoveCircle size={24} color="rgba(214,43,66,0.9)"/>
-                            </Button>
+                            <Tooltip content="Remove From Campaign" showArrow={true}>
+                                <Button isIconOnly variant="light" color="success" 
+                                    isLoading={loadingAction}
+                                    disabled={loadingAction}
+                                    onPress={() => removeBillboard(billboard?.links?.actions?.find(action => action.name === "remove_from_campaign")?.href || "")} 
+                                    className="rounded-[6px] !h-[32px] !max-w-[32px] !px-0 py-1"
+                                >
+                                    <IoIosRemoveCircle size={24} color="rgba(214,43,66,0.9)"/>
+                                </Button>
+                            </Tooltip>
                         )}
                     </div>
                 );
